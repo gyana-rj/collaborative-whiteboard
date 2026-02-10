@@ -2,6 +2,7 @@ import express, { json } from "express"
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { CreateUserSchema, SignInSchema, CreateRoomSchema } from "@repo/common/types";
+import { middleware } from "./middleware";
 const app = express();
 
 app.get("/signup", (req, res) => {
@@ -35,15 +36,19 @@ app.post("/signin", (req, res) => {
 
 });
 
-app.post("/room", (req, res) => {
+app.post("/room",middleware, (req, res) => {
 
     const data = CreateRoomSchema.safeParse(req.body);
-    
+    if(!data.success){
+       res.json({
+        message: "Invalid inputs"
+       })
+       return;
+    }
+
+
 
 });
-
-
-
 
 function main(){
 console.log(`Listeing on port 3001`)
