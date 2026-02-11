@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b",
-    "start": "node ./dist/index.js",
-    "dev": "npm run build && npm run start"
+  "build": "tsc -b",
+  "start": "node dist/index.js",
+  "dev": "tsx watch src/index.ts"
   },
   "devDependencies": {
+    "@repo/backend-common": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/ws": "^8.18.1",
-    "@repo/backend-common": "workspace:*"
+    "tsx": "^4.21.0"
   },
   "keywords": [],
   "author": "",
