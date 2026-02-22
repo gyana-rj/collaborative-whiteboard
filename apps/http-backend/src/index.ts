@@ -97,11 +97,24 @@ app.post("/room",middleware, async(req, res) => {
         message: "Room alerady exists with this name"
     })
 }
-
-
-
-
 });
+
+app.get("/chat/:roomId", async(req, res) => {
+    const roomId = Number(req.params.roomId);
+    const messages = await prismaClient.chat.findMany({
+        where: {
+            roomId: roomId
+        },
+        orderBy: {
+            id: "desc"
+        },
+        take: 50
+    })
+
+    res.json({
+        messages
+    })
+})
 
 function main(){
 console.log(`Listeing on port 3001`)
