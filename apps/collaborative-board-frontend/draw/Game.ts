@@ -37,8 +37,13 @@ export class Game {
     this.selectedTool = tool;
   }
 
-  async init() {
-    this.existingShapes = await getExistingShapes(this.roomId);
+  private async init() {
+    try{
+      this.existingShapes = await getExistingShapes(this.roomId);
+      this.clearCanvas();
+    }catch(error){
+      console.error("Failed to fetch existing shapes", error);
+    }
   }
 
   initHandler() {
@@ -71,7 +76,7 @@ export class Game {
     this.ctx.fillStyle = "rgba(0, 0, 0)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.existingShapes.map((shape) => {
+    this.existingShapes.forEach((shape) => {
       this.ctx.strokeStyle = "white";
       this.ctx.lineCap = "round";
       this.ctx.lineJoin = "round";
