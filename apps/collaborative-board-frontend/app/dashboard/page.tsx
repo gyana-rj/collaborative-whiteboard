@@ -1,0 +1,104 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
+export default function DashboardPage() {
+  const [joinRoomId, setJoinRoomId] = useState("");
+  const [createRoomId, setCreateRoomId] = useState("");
+  const router = useRouter();
+
+  const handleJoinRoom = () => {
+    if (!joinRoomId.trim()) return;
+    router.push(`/canvas/${joinRoomId}`);
+  };
+
+  const handleCreateRoom = async () => {
+    if (!createRoomId.trim()) return;
+
+    const formattedRoomId = createRoomId.trim().replace(/\s+/g, '-').toLowerCase();
+
+    try{
+        const token = localStorage.getItem("token");
+
+        await axios.post(
+            "http://localhost:3001/room",
+            {name: formattedRoomId},
+            {
+                headers:{
+                    Authorization: token
+                }
+            }
+        )
+    }catch(error: any){
+        const errorMessage = error.response?.data?.message;
+        alert(errorMessage)
+    }
+    
+    router.push(`/canvas/${formattedRoomId}`);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="flex flex-col gap-6 p-8 border border-zinc-800 rounded-2xl bg-zinc-950 shadow-2xl w-full max-w-md">
+        
+        <div className="flex justify-center mb-2">
+          <div className="flex items-center gap-2 text-xl font-bold">
+            <span className="bg-white text-black px-2 py-1 rounded-md text-sm">CNVS</span>
+            Workspace
+          </div>
+        </div>
+
+        <h2 className="text-xl font-medium text-center text-zinc-200">Where do you want to draw?</h2>
+
+        <div className="flex flex-col gap-2 mt-4">
+          <label className="text-sm text-zinc-400">Join an existing room</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter Room ID"
+              value={joinRoomId}
+              onChange={(e) => setJoinRoomId(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleJoinRoom()}
+              className="flex-1 p-3 rounded-lg bg-zinc-900 border border-zinc-800 focus:border-white focus:outline-none transition-colors"
+            />
+            <button
+              onClick={handleJoinRoom}
+              className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
+            >
+              Join
+            </button>
+          </div>
+        </div>
+
+        <div className="relative flex py-4 items-center">
+          <div className="flex-grow border-t border-zinc-800"></div>
+          <span className="flex-shrink-0 mx-4 text-zinc-500 text-sm">or</span>
+          <div className="flex-grow border-t border-zinc-800"></div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-zinc-400">Create a new room</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="e.g. 15 or 17"
+              value={createRoomId}
+              onChange={(e) => setCreateRoomId(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCreateRoom()}
+              className="flex-1 p-3 rounded-lg bg-zinc-900 border border-zinc-800 focus:border-white focus:outline-none transition-colors"
+            />
+            <button
+              onClick={handleCreateRoom}
+              className="px-6 py-3 bg-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 whitespace-nowrap"
+            >
+              Create
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
