@@ -2,46 +2,45 @@ import { WebSocketServer, WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
-const wss = new WebSocketServer({port: 8080});
+const wss = new WebSocketServer({ port: 8080 });
 
-interface User{
-  ws: WebSocket,
-  rooms: string[],
-  userId: string
+interface User {
+  ws: WebSocket;
+  rooms: number[];
+  userId: string;
 }
 const users: User[] = [];
 
-function checkUser(token: string): string | null{
-  try{
+function checkUser(token: string): string | null {
+  try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-  if(typeof decoded === "string"){
-    return null;
-  }
+    if (typeof decoded === "string") {
+      return null;
+    }
 
-  if(!decoded || !decoded.userId){
-    return null;
-  }
+    if (!decoded || !decoded.userId) {
+      return null;
+    }
 
-  return decoded.userId;
-  }catch(e){
+    return decoded.userId;
+  } catch (e) {
     return null;
   }
-  return null;
 }
 
-wss.on("connection", function connection(ws, request){
-  const url = request.url;  //   ws://localhost:3000?token=12233
+wss.on("connection", function connection(ws, request) {
+  const url = request.url; //   ws://localhost:3000?token=12233
   // ["ws://localhost:3000", "token=12233"]
-  if(!url){
+  if (!url) {
     return;
   }
-  const queryParams = new URLSearchParams(url.split('?')[1])
-  const token = queryParams.get('token') || "";
+  const queryParams = new URLSearchParams(url.split("?")[1]);
+  const token = queryParams.get("token") || "";
 
   const userId = checkUser(token);
 
-  if(userId == null){
+  if (userId == null) {
     ws.close();
     return;
   }
@@ -49,47 +48,55 @@ wss.on("connection", function connection(ws, request){
   users.push({
     userId,
     rooms: [],
-    ws
-  })
-  
+    ws,
+  });
 
-  ws.on('message', async function message(data){
-    const parsedData = JSON.parse(data as unknown as string);  // {type: "join-room", roomId: 1}
-
-    if(parsedData.type === "join_room"){
-      const user = users.find(x => x.ws === ws);
-      user?.rooms.push(parsedData.roomId);
+  ws.on("message", async function message(data) {
+    let parsedData;
+    if (typeof data !== "string") {
+      parsedData = JSON.parse(data.toString());
+    } else {
+      parsedData = JSON.parse(data); // {type: "join-room", roomId: 1}
+    }
+    if (parsedData.type === "join_room") {
+      const user = users.find((x) => x.ws === ws);
+      user?.rooms.push(Number(parsedData.roomId));
     }
 
-    if(parsedData.type === "leave_room"){
-      const user = users.find(x => x.ws === ws);
-      if(!user){
+    if (parsedData.type === "leave_room") {
+      const user = users.find((x) => x.ws === ws);
+      if (!user) {
         return;
       }
-      user.rooms = user?.rooms.filter(x => x === parsedData.room);
+      user.rooms = user.rooms.filter((x) => x !== Number(parsedData.roomId));
     }
 
-    if(parsedData.type == "chat"){
-      const roomId = parsedData.roomId;
+    if (parsedData.type === "chat") {
+      const roomId = Number(parsedData.roomId);
       const message = parsedData.message;
-
-      await prismaClient.chat.create({
-      data: {
-        roomId,
-        message,
-        userId
-      }
-    })
-
-      users.forEach(users => {
-        if(users.rooms.includes(roomId)){
-          users.ws.send(JSON.stringify({
-            type: "chat",
-            message: message,
-            roomId
-          }))
+      users.forEach((client) => {
+        if (client.rooms.includes(roomId) && client.ws !== ws) {
+          client.ws.send(
+            JSON.stringify({
+              type: "chat",
+              message: message,
+              roomId,
+            }),
+          );
         }
-      })
+      });
+
+      try {
+        await prismaClient.chat.create({
+          data: {
+            roomId: Number(roomId),
+            message,
+            userId,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to save message to database:", error);
+      }
     }
-  })
-})
+  });
+});

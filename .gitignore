@@ -27,6 +27,12 @@ out/
 build
 dist
 
+# TypeScript cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# PNPM
+pnpm-debug.log*
 
 
 # Debug
