@@ -1,135 +1,41 @@
-# Turborepo starter
+# CNVS - Real-Time Collaborative Whiteboard
 
-This Turborepo starter is maintained by the Turborepo core team.
+CNVS is a full-stack, real-time collaborative whiteboard application. It allows multiple users to join dedicated rooms, draw simultaneously, and see each other's updates instantly. 
 
-## Using this example
+Built with a modern, scalable monorepo architecture using Turborepo, this project features a Next.js frontend, an Express REST API, a dedicated WebSocket server, and a Postgres database to persist drawings.
 
-Run the following command:
+## ✨ Features
 
-```sh
-npx create-turbo@latest
-```
+* **Real-Time Collaboration:** Instantly see drawings from other users in the same room using WebSockets.
+* **Persistent Rooms:** All shapes and drawings are saved to a database, allowing users to leave and return without losing their work.
+* **Rich Drawing Tools:** * ✏️ Freehand Pencil
+  * 🧽 Eraser
+  * ⬛ Rectangles
+  * ⭕ Circles
+  * ➡️ Directional Arrows
+  * 📝 Text Tool
+* **User Authentication:** Secure Sign-up/Sign-in flow using JWT.
+* **Scalable Monorepo:** Clean separation of concerns between frontend, HTTP APIs, WebSocket servers, and database schemas.
 
-## What's inside?
+## 🛠️ Tech Stack
 
-This Turborepo includes the following packages/apps:
+* **Frontend:** Next.js (App Router), React, TypeScript, Tailwind CSS, HTML5 Canvas API.
+* **Backend (HTTP):** Node.js, Express.js, JWT Authentication.
+* **Backend (WebSockets):** Node.js, `ws` library for real-time bidirectional communication.
+* **Database:** PostgreSQL, Prisma ORM.
+* **Architecture:** Turborepo (Monorepo), PNPM Workspaces.
 
-### Apps and Packages
+## 📂 Project Structure
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+This project is organized as a Turborepo monorepo:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+```text
+├── apps
+│   ├── collaborative-board-frontend # The Next.js web application
+│   ├── http-backend                 # Express API for Auth and Room data
+│   └── ws-backend                   # WebSocket server for real-time syncing
+├── packages
+│   ├── backend-common               # Shared configurations and utilities
+│   ├── common                       # Shared TypeScript interfaces (Zod schemas)
+│   ├── db                           # Prisma schema and database client
+│   └── ui                           # Shared React UI components
