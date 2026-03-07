@@ -26,10 +26,11 @@ export function Canvas({roomId, socket}: {roomId: number; socket : WebSocket} ){
 
     return <div style={{
             height: "100vh",
-            overflow: "hidden"
+            width: "100vw",
+            overflow: "auto"
 
     }}>
-        <canvas style={{display : "block"}} ref ={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
+        <canvas style={{display : "block"}} ref ={canvasRef} width={5000} height={5000}></canvas>
         <Topbar selectedTool={selectedTool} setSelectedTool={setSelectedTool} game={game}/>
 
         <div 

@@ -164,22 +164,22 @@ export class Game {
     if(this.typing) return;
 
     if(this.selectedTool === "text"){
-      this.addTextInput(e.clientX, e.clientY);
+      this.addTextInput(e.offsetX, e.offsetY, e.clientX, e.clientY);
       return;
     }
     this.clicked = true;
-    this.startX = e.clientX;
-    this.startY = e.clientY;
+    this.startX = e.offsetX;
+    this.startY = e.offsetY;
 
     if(this.selectedTool === "pencil" || this.selectedTool === "eraser"){
-      this.currentPath = [{x : e.clientX, y: e.clientY}];
+      this.currentPath = [{x : e.offsetX, y: e.offsetY}];
     }
   }
 
   mouseUpHandler = (e: MouseEvent) => {
     this.clicked = false;
-    const width = e.clientX - this.startX;
-    const height = e.clientY - this.startY;
+    const width = e.offsetX - this.startX;
+    const height = e.offsetY - this.startY;
     const selectedTool = this.selectedTool;
     let shape: Shape | null = null;
 
@@ -209,8 +209,8 @@ export class Game {
         type: "arrow",
         startX: this.startX,
         startY: this.startY,
-        endX: e.clientX,
-        endY: e.clientY
+        endX: e.offsetX,
+        endY: e.offsetY
       }
     }
 
@@ -235,7 +235,7 @@ export class Game {
     if(!this.clicked) return;
     
     if(this.selectedTool === "pencil" || this.selectedTool === "eraser"){
-      this.currentPath.push({x: e.clientX, y: e.clientY});
+      this.currentPath.push({x: e.offsetX, y: e.offsetY});
 
       this.clearCanvas();
       this.ctx.strokeStyle = this.selectedTool === "eraser" ? "black" : "white";
@@ -258,8 +258,8 @@ export class Game {
       return;
     }
 
-    const width = e.clientX - this.startX;
-    const height = e.clientY - this.startY;
+    const width = e.offsetX - this.startX;
+    const height = e.offsetY - this.startY;
 
     this.clearCanvas();
     this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
@@ -277,21 +277,21 @@ export class Game {
       this.ctx.closePath();
     }else if (selectedTool === "arrow") {
       const headlen = 15;
-      const dx = e.clientX - this.startX;
-      const dy = e.clientY - this.startY;
+      const dx = e.offsetX - this.startX;
+      const dy = e.offsetY - this.startY;
       const angle = Math.atan2(dy, dx);
 
       this.ctx.beginPath();
       this.ctx.moveTo(this.startX, this.startY);
-      this.ctx.lineTo(e.clientX, e.clientY);
+      this.ctx.lineTo(e.offsetX, e.offsetY);
       this.ctx.lineTo(
-        e.clientX - headlen * Math.cos(angle - Math.PI / 6),
-        e.clientY - headlen * Math.sin(angle - Math.PI / 6)
+        e.offsetX - headlen * Math.cos(angle - Math.PI / 6),
+        e.offsetY - headlen * Math.sin(angle - Math.PI / 6)
       );
-      this.ctx.moveTo(e.clientX, e.clientY);
+      this.ctx.moveTo(e.offsetX, e.offsetY);
       this.ctx.lineTo(
-        e.clientX - headlen * Math.cos(angle + Math.PI / 6),
-        e.clientY - headlen * Math.sin(angle + Math.PI / 6)
+        e.offsetX - headlen * Math.cos(angle + Math.PI / 6),
+        e.offsetY - headlen * Math.sin(angle + Math.PI / 6)
       );
       this.ctx.stroke();
       this.ctx.closePath();
@@ -300,13 +300,13 @@ export class Game {
     }
   }
 
-  addTextInput(x: number, y: number) {
+  addTextInput(offsetX: number, offsetY: number, clientX: number, clientY: number) {
     this.typing = true;
     
     const input = document.createElement("textarea");
-    input.style.position = "absolute";
-    input.style.left = `${x}px`;
-    input.style.top = `${y}px`;
+    input.style.position = "fixed";
+    input.style.left = `${clientX}px`;
+    input.style.top = `${clientY}px`;
     input.style.background = "transparent";
     input.style.color = "white";
     input.style.font = "24px Arial";
@@ -327,8 +327,8 @@ export class Game {
       if (text !== "") {
         const shape: Shape = {
           type: "text",
-          x: x,
-          y: y + 24,
+          x: offsetX,
+          y: offsetY + 24,
           text: text,
         };
         
