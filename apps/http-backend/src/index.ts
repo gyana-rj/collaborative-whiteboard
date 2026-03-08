@@ -181,7 +181,7 @@ app.get("/room/:slug", async (req, res) => {
 
 function main() {
   console.log(`Listeing on port 3001`);
-  app.listen(3001);
+  app.listen( process.env.PORT || 3001);
 }
 
 main();
