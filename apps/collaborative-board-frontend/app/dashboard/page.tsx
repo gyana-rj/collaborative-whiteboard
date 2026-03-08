@@ -6,7 +6,6 @@ import axios from "axios";
 
 export default function DashboardPage() {
   const [joinRoomId, setJoinRoomId] = useState("");
-  const [createRoomId, setCreateRoomId] = useState("");
   const router = useRouter();
 
   const handleJoinRoom = () => {
@@ -15,9 +14,8 @@ export default function DashboardPage() {
   };
 
   const handleCreateRoom = async () => {
-    if (!createRoomId.trim()) return;
 
-    const randomRoomId = Math.floor(100000 + Math.random() * 900000); 
+    const randomRoomId = Math.floor(100000 + Math.random() * 900000).toString(); 
 
     try{
         const token = localStorage.getItem("token");
@@ -30,13 +28,13 @@ export default function DashboardPage() {
                     Authorization: token
                 }
             }
-        )
+        );
+        router.push(`/canvas/${randomRoomId}`);
     }catch(error: any){
         const errorMessage = error.response?.data?.message;
         alert(errorMessage)
     }
     
-    router.push(`/canvas/${randomRoomId}`);
   };
 
   return (
@@ -79,23 +77,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm text-zinc-400">Create a new room</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="e.g. 15 or 17"
-              value={createRoomId}
-              onChange={(e) => setCreateRoomId(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCreateRoom()}
-              className="flex-1 p-3 rounded-lg bg-zinc-900 border border-zinc-800 focus:border-white focus:outline-none transition-colors"
-            />
-            <button
-              onClick={handleCreateRoom}
-              className="px-6 py-3 bg-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 whitespace-nowrap"
-            >
-              Create
-            </button>
-          </div>
+          <label className="text-sm text-zinc-400">Start a fresh canvas</label>
+          <button
+            onClick={handleCreateRoom}
+            className="w-full py-4 bg-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 flex justify-center items-center gap-2"
+          >
+            Create New Room
+          </button>
         </div>
 
       </div>

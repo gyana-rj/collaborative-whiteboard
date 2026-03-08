@@ -16,7 +16,7 @@ app.use(cors());
 app.post("/signup", async (req, res) => {
   const parsedData = CreateUserSchema.safeParse(req.body);
   if (!parsedData.success) {
-    res.json({
+    res.status(400).json({
       message: "Invalid inputs",
     });
     return;

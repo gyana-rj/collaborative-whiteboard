@@ -64,7 +64,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
   }
   return (
     <div>
-      <Canvas key={numericId} roomId={numericId!} socket={socket} />
+      <Canvas key={numericId} roomId={numericId!} socket={socket} roomSlug= {roomId} />
     </div>
   );
 }

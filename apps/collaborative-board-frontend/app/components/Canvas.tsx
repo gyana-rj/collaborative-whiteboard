@@ -5,7 +5,7 @@ import { Game } from "@/draw/Game";
 
 export type Tool = "circle" | "rect" | "pencil" | "eraser" | "text" | "arrow";
 
-export function Canvas({roomId, socket}: {roomId: number; socket : WebSocket} ){
+export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : WebSocket; roomSlug : string}){
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [selectedTool, setSelectedTool] = useState<Tool>("circle");
     const [game, setGame] = useState<Game>();
