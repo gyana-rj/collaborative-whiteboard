@@ -16,23 +16,25 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
       return;
     }
 
+    let ws: WebSocket | null = null;
+
     axios.get(`http://localhost:3001/room/${roomId}`).then((res) => {
       if (res.data.room && res.data.room.id) {
         const id = res.data.room.id;
         setNumericId(id);
 
-        const ws = new WebSocket(`${WS_BACKEND}?token=${token}`);
+        ws = new WebSocket(`${WS_BACKEND}?token=${token}`);
 
         ws.onopen = () => {
           setSocket(ws);
-          ws.send(
+          ws?.send(
             JSON.stringify({
               type: "join_room",
               roomId: id,
             }),
           );
         };
-        ws.close = () => {
+        ws.onclose = () => {
             console.log("WebSocket disconnected");
             setSocket(null);
         };
@@ -42,6 +44,12 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
         console.error("could not find room", err);
         alert("Room does not exist")
     });
+
+    return () => {
+      if(ws){
+        ws.close();
+      }
+    }
   }, [roomId, router]);
 
   if (!socket) {
@@ -56,7 +64,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
   }
   return (
     <div>
-      <Canvas roomId={numericId!} socket={socket} />
+      <Canvas key={numericId} roomId={numericId!} socket={socket} />
     </div>
   );
 }

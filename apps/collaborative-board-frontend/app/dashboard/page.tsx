@@ -17,14 +17,14 @@ export default function DashboardPage() {
   const handleCreateRoom = async () => {
     if (!createRoomId.trim()) return;
 
-    const formattedRoomId = createRoomId.trim().replace(/\s+/g, '-').toLowerCase();
+    const randomRoomId = Math.floor(100000 + Math.random() * 900000); 
 
     try{
         const token = localStorage.getItem("token");
 
         await axios.post(
             "http://localhost:3001/room",
-            {name: formattedRoomId},
+            {name: randomRoomId},
             {
                 headers:{
                     Authorization: token
@@ -36,7 +36,7 @@ export default function DashboardPage() {
         alert(errorMessage)
     }
     
-    router.push(`/canvas/${formattedRoomId}`);
+    router.push(`/canvas/${randomRoomId}`);
   };
 
   return (
