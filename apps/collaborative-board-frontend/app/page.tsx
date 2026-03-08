@@ -83,10 +83,9 @@ export default function LandingPage() {
           </div>
         </nav>
 
-        {/* Main Content */}
+        
         <main className="flex-1 flex flex-col items-center w-full">
 
-          {/* Hero Section */}
           <section className="w-full max-w-7xl mx-auto px-6 pt-24 pb-16 flex flex-col items-center text-center">
             <Link href="#" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 border border-zinc-200/80 text-xs font-medium text-zinc-600 mb-8 hover:bg-zinc-200/50 transition-colors">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -118,7 +117,6 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* Product Mockup Section */}
           <section className="w-full max-w-6xl mx-auto px-6 mb-32">
             <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] bg-white rounded-2xl border border-zinc-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex items-center justify-center dot-pattern">
 
@@ -220,7 +218,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* Features Grid Section */}
+         
           <section className="w-full max-w-7xl mx-auto px-6 mb-32">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-semibold tracking-tight text-zinc-900">Everything you need to map your thoughts</h2>
@@ -239,7 +237,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* CTA Section */}
+         
           <section className="w-full border-t border-zinc-200/60 bg-white">
             <div className="max-w-4xl mx-auto px-6 py-24 text-center flex flex-col items-center">
               <div className="h-12 w-12 rounded-xl bg-zinc-900 flex items-center justify-center mb-6 shadow-md">
@@ -249,14 +247,14 @@ export default function LandingPage() {
               <p className="text-base font-normal text-zinc-500 mb-8 max-w-lg">
                 Join thousands of teams who use Canvas to brainstorm, build, and document their ideas every day. No signup required to start.
               </p>
-              <Button variant="primary" onClick={() => router.push("/board")}>
+              <Button variant="primary" onClick={() => router.push("/dashboard")}>
                 Open a new canvas
               </Button>
             </div>
           </section>
         </main>
 
-        {/* Footer */}
+        
         <footer className="border-t border-zinc-200/60 bg-[#FAFAFA] py-12">
           <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
