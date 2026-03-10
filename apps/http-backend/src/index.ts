@@ -7,7 +7,7 @@ import {
   SignInSchema,
   CreateRoomSchema,
 } from "@repo/common/types";
-import { middleware } from "./middleware";
+import { middleware } from "./middleware.js";
 import { prismaClient } from "@repo/db/client";
 import cors from "cors";
 const app = express();
