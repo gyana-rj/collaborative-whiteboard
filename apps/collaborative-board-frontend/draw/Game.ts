@@ -39,8 +39,15 @@ export class Game {
 
   private async init() {
     try{
-      this.existingShapes = await getExistingShapes(this.roomId);
-      this.clearCanvas();
+      const fetchedShapes = await getExistingShapes(this.roomId);
+      fetchedShapes.forEach((shape: Shape) => {
+        const alreadyExists = this.existingShapes.some(
+          (s) => JSON.stringify(s) === JSON.stringify(shape)
+        );
+        if(!alreadyExists){
+          this.existingShapes.push(shape)
+        }
+      });
     }catch(error){
       console.error("Failed to fetch existing shapes", error);
     }
@@ -73,7 +80,7 @@ export class Game {
   }
   clearCanvas() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = "rgba(0, 0, 0)";
+    this.ctx.fillStyle = "#121212";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.existingShapes.forEach((shape) => {
@@ -196,8 +203,8 @@ export class Game {
       shape = {
         type: "circle",
         radius: radius,
-        centerX: this.startX + radius,
-        centerY: this.startY + radius,
+        centerX: this.startX + (width >= 0 ? radius : -radius),
+        centerY: this.startY + (width >= 0 ? radius : -radius),
       };
     }else if (selectedTool === "pencil" || selectedTool === "eraser"){
       if(this.currentPath.length > 1){
@@ -269,8 +276,8 @@ export class Game {
       this.ctx.strokeRect(this.startX, this.startY, width, height);
     }else if(selectedTool === "circle"){
       const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
-      const centerX = this.startX + radius;
-      const centerY = this.startY + radius;
+      const centerX = this.startX + (width >= 0 ? radius : -radius);
+      const centerY = this.startY + (width >= 0 ? radius : -radius);
       this.ctx.beginPath();
       this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       this.ctx.stroke();

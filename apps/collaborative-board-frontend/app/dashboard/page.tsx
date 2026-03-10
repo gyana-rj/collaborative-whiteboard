@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { LogOut } from "lucide-react";
 
 export default function DashboardPage() {
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -37,8 +38,18 @@ export default function DashboardPage() {
     
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/");
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <button onClick={handleLogout}
+      className="absolute top-6 right-6 flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded-lg border border-zinc-800 transition-colors text-sm font-medium">
+        <LogOut className="w-4 h-4"/>
+        Logout
+      </button>
       <div className="flex flex-col gap-6 p-8 border border-zinc-800 rounded-2xl bg-zinc-950 shadow-2xl w-full max-w-md">
         
         <div className="flex justify-center mb-2">

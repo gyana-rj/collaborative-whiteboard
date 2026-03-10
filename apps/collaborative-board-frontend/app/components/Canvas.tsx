@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "./IconButton";
-import { ArrowRight, Circle, Eraser, Pencil, RectangleHorizontalIcon, Trash, Type } from "lucide-react";
+import { ArrowRight, Circle, Eraser, Home, Icon, Pencil, RectangleHorizontalIcon, Trash, Type } from "lucide-react";
 import { Game } from "@/draw/Game";
+import { useRouter } from "next/navigation";
 
 export type Tool = "circle" | "rect" | "pencil" | "eraser" | "text" | "arrow";
 
@@ -9,7 +10,7 @@ export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : Web
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [selectedTool, setSelectedTool] = useState<Tool>("circle");
     const [game, setGame] = useState<Game>();
-
+    const router = useRouter();
     useEffect(() => {
         game?.setTool(selectedTool);
     }, [selectedTool, game])
@@ -31,7 +32,10 @@ export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : Web
 
     }}>
         <canvas style={{display : "block"}} ref ={canvasRef} width={5000} height={5000}></canvas>
-        <Topbar selectedTool={selectedTool} setSelectedTool={setSelectedTool} game={game}/>
+        <Topbar selectedTool={selectedTool} 
+        setSelectedTool={setSelectedTool} 
+        game={game} 
+        onExit={() => router.push("/dashboard")}/>
 
         <div 
                 style={{
@@ -50,17 +54,23 @@ export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : Web
         </div>
 }
 
-function Topbar({selectedTool, setSelectedTool, game}: {
+function Topbar({selectedTool, setSelectedTool, game, onExit}: {
     selectedTool: Tool,
-    setSelectedTool: (s: Tool) => void
-    game?: Game 
+    setSelectedTool: (s: Tool) => void,
+    game?: Game,
+    onExit: () => void; 
 }){
     return <div style={{
             position: "fixed",
             top: 10,
             left: 10
         }}>
-          <div className="flex gap-2">
+            
+          <div className="flex gap-2 items-center bg-zinc-900/80 backdrop-blur-md p-2 rounded-lg border border-zinc-700 shadow-lg">
+
+           <IconButton onClick={onExit} activated = {false} icon = {<Home/>} />
+          <div className="w-px h-8 bg-zinc-700 mx-1"></div>
+
            <IconButton onClick={() => {
             setSelectedTool("pencil")
            }} activated={selectedTool === "pencil"} icon = {<Pencil/>}/> 
@@ -85,7 +95,7 @@ function Topbar({selectedTool, setSelectedTool, game}: {
             setSelectedTool("arrow")
            }} activated = {selectedTool === "arrow"} icon = {<ArrowRight/>}/>
 
-           <div className="w-px bg-zinc-700 mx-1"></div>
+           <div className="w-px h-8 bg-zinc-700 mx-1"></div>
 
            <IconButton onClick={() => {
             game?.clearAll()
