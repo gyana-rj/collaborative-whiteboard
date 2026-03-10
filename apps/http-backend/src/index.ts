@@ -43,8 +43,10 @@ app.post("/signup", async (req, res) => {
       userId: user.id,
     });
   } catch (e) {
-    res.status(411).json({
-      message: "User already exits with this username",
+    console.error(e); 
+    res.status(500).json({
+      message: "Error while signing up",
+      error: e instanceof Error ? e.message : "Unknown error"
     });
   }
 });

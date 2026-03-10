@@ -1,5 +1,5 @@
 "use client";
-import { WS_BACKEND } from "@/config";
+import { WS_BACKEND, HTTP_BACKEND } from "@/config";
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "./Canvas";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
 
     let ws: WebSocket | null = null;
 
-    axios.get(`http://localhost:3001/room/${roomId}`).then((res) => {
+    axios.get(`${HTTP_BACKEND}/room/${roomId}`).then((res) => {
       if (res.data.room && res.data.room.id) {
         const id = res.data.room.id;
         setNumericId(id);

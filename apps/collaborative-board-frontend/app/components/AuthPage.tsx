@@ -6,6 +6,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CreateUserSchema, SignInSchema } from "@repo/common"; 
+import { HTTP_BACKEND } from "@/config";
 
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
     const router = useRouter();
@@ -42,7 +43,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
         const payload = validation.data;
 
         try {
-            const response = await axios.post(`http://localhost:3001/${endpoint}`, payload);
+            const response = await axios.post(`${HTTP_BACKEND}/${endpoint}`, payload);
             const data = response.data;
 
             if (data.token) {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { LogOut } from "lucide-react";
+import { HTTP_BACKEND } from "@/config";
 
 export default function DashboardPage() {
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -22,7 +23,7 @@ export default function DashboardPage() {
         const token = localStorage.getItem("token");
 
         await axios.post(
-            "http://localhost:3001/room",
+            `${HTTP_BACKEND}/room`,
             {name: randomRoomId},
             {
                 headers:{
