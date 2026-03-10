@@ -2,7 +2,16 @@ import { WebSocketServer, WebSocket } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
-const wss = new WebSocketServer({ port: 8080 });
+import express from 'express';
+const app = express();
+
+app.get("/health", (req, res) => {
+  res.send("I am alive!");
+});
+const PORT = Number(process.env.PORT) || 8080;
+const wss = new WebSocketServer({ port: PORT }, () => {
+  console.log(`WS Server is live on port ${PORT}`);
+});
 
 interface User {
   ws: WebSocket;
