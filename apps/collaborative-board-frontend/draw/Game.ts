@@ -16,7 +16,7 @@ export class Game {
   private selectedTool: Tool = "circle";
   private typing: boolean = false;
   private currentColor: string = "#ffffff"
-
+  private currentShapeId: string | null = null;
   private currentPath : {x: number, y: number}[] = [];
 
   constructor(canvas: HTMLCanvasElement, roomId: number, socket: WebSocket) {
@@ -74,25 +74,19 @@ export class Game {
           this.clearCanvas();
           return;
         }
-        // If it's an update, we find the last shape of the same type and replace it
-        // This stops the "ghosting" of 100 rectangles
-        if (parsedData.isUpdate) {
-          // Find the last index of a shape with this type
-          const lastIndex = this.existingShapes.findLastIndex(s => s.type === incomingShape.type);
-          
-          if (lastIndex !== -1) {
-            this.existingShapes[lastIndex] = incomingShape;
-          } else {
-            this.existingShapes.push(incomingShape);
-          }
+
+        // --- THE ID FIX ---
+        // Find if this specific shape already exists in our array
+        const existingIndex = this.existingShapes.findIndex(
+          (s) => s.id === incomingShape.id
+        );
+
+        if (existingIndex !== -1) {
+          // If it exists (it was a preview), UPDATE it with the new data
+          this.existingShapes[existingIndex] = incomingShape;
         } else {
-          // It's a final shape (from mouseUp), check for duplicates and push
-          const alreadyExists = this.existingShapes.some(
-            (s) => JSON.stringify(s) === JSON.stringify(incomingShape)
-          );
-          if (!alreadyExists) {
-            this.existingShapes.push(incomingShape);
-          }
+          // If it's new, PUSH it to the array
+          this.existingShapes.push(incomingShape);
         }
         
         this.clearCanvas();
@@ -181,7 +175,7 @@ export class Game {
       JSON.stringify({
         type: "chat",
         message : JSON.stringify({
-          shape: {type: "clear"}
+          shape: {type: "clear", id : "clear eventt"}
         }),
         roomId: this.roomId
       })
@@ -199,6 +193,8 @@ export class Game {
     this.startX = e.offsetX;
     this.startY = e.offsetY;
 
+    this.currentShapeId = Math.random().toString(36).substring(2, 9);
+
     if(this.selectedTool === "pencil" || this.selectedTool === "eraser"){
       this.currentPath = [{x : e.offsetX, y: e.offsetY}];
     }
@@ -211,8 +207,14 @@ export class Game {
     const selectedTool = this.selectedTool;
     let shape: Shape | null = null;
 
+    const commonProps = {
+        id: this.currentShapeId!, // Use the ID generated in mouseDown
+        color: this.currentColor
+    };
+
     if (selectedTool === "rect") {
       shape = {
+        ...commonProps,
         type: "rect",
         x: this.startX,
         y: this.startY,
@@ -223,6 +225,7 @@ export class Game {
     } else if (selectedTool === "circle") {
       const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
       shape = {
+        ...commonProps,
         type: "circle",
         radius: radius,
         centerX: this.startX + (width >= 0 ? radius : -radius),
@@ -231,11 +234,12 @@ export class Game {
       };
     }else if (selectedTool === "pencil" || selectedTool === "eraser"){
       if(this.currentPath.length > 1){
-        shape = { type: selectedTool, points: [...this.currentPath], color: this.currentColor };
+        shape = {...commonProps, type: selectedTool, points: [...this.currentPath], color: this.currentColor };
       }
       this.currentPath = [];
     }else if(selectedTool === "arrow"){
       shape= {
+        ...commonProps,
         type: "arrow",
         startX: this.startX,
         startY: this.startY,
@@ -260,6 +264,7 @@ export class Game {
         roomId: this.roomId,
       }),
     );
+    this.currentShapeId = null;
   }
 
   mouseMoveHandler = (e: PointerEvent) => {
@@ -399,6 +404,7 @@ export class Game {
       
       if (text !== "") {
         const shape: Shape = {
+          id: Math.random().toString(36).substring(2, 9),
           type: "text",
           x: offsetX,
           y: offsetY + 24,
