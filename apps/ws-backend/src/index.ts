@@ -81,31 +81,30 @@ wss.on("connection", function connection(ws, request) {
     }
 
     if (parsedData.type === "chat") {
-      const roomId = Number(parsedData.roomId);
-      const message = parsedData.message;
-      users.forEach((client) => {
-        if (client.rooms.includes(roomId) && client.ws !== ws) {
-          client.ws.send(
-            JSON.stringify({
-              type: "chat",
-              message: message,
-              roomId,
-            }),
-          );
-        }
-      });
+  const roomId = Number(parsedData.roomId);
+  const message = parsedData.message;
 
-      try {
-        await prismaClient.chat.create({
-          data: {
-            roomId: Number(roomId),
-            message,
-            userId,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to save message to database:", error);
-      }
+  // 1. BROADCAST IMMEDIATELY (No waiting)
+  users.forEach((client) => {
+    if (client.rooms.includes(roomId) && client.ws !== ws) {
+      client.ws.send(
+        JSON.stringify({
+          type: "chat",
+          message: message,
+          roomId,
+        }),
+      );
     }
+  });
+  prismaClient.chat.create({
+    data: {
+      roomId: Number(roomId),
+      message,
+      userId,
+    },
+  }).catch((error) => {
+    console.error("Delayed DB Save Error:", error);
+  });
+}
   });
 });

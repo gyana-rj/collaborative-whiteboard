@@ -8,6 +8,8 @@ import axios from "axios";
 export default function RoomCanvas({ roomId }: { roomId: string }) {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [numericId, setNumericId] = useState<number | null>(null);
+  const lastSeenTime = useRef<number>(0);
+  const THROTTLE_MS = 30;
   const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("token");

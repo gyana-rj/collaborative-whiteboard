@@ -3,6 +3,8 @@ import { getExistingShapes } from "./http";
 import { Shape } from "./ShapeType";
 
 export class Game {
+  private lastSentTime = 0;
+  private THROTTLE_MS = 30; 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private existingShapes: Shape[] = [];
@@ -67,19 +69,32 @@ export class Game {
         const parsedData = JSON.parse(message.message);
         const incomingShape = parsedData.shape;
 
-        if(incomingShape.type === "clear"){
+        if (incomingShape.type === "clear") {
           this.existingShapes = [];
           this.clearCanvas();
           return;
         }
-
-
-        const alreadyExists = this.existingShapes.some(
-          (shape) => JSON.stringify(shape) === JSON.stringify(incomingShape)
-        );
-        if(!alreadyExists){
-          this.existingShapes.push(incomingShape);
+        // If it's an update, we find the last shape of the same type and replace it
+        // This stops the "ghosting" of 100 rectangles
+        if (parsedData.isUpdate) {
+          // Find the last index of a shape with this type
+          const lastIndex = this.existingShapes.findLastIndex(s => s.type === incomingShape.type);
+          
+          if (lastIndex !== -1) {
+            this.existingShapes[lastIndex] = incomingShape;
+          } else {
+            this.existingShapes.push(incomingShape);
+          }
+        } else {
+          // It's a final shape (from mouseUp), check for duplicates and push
+          const alreadyExists = this.existingShapes.some(
+            (s) => JSON.stringify(s) === JSON.stringify(incomingShape)
+          );
+          if (!alreadyExists) {
+            this.existingShapes.push(incomingShape);
+          }
         }
+        
         this.clearCanvas();
       }
     };
@@ -268,6 +283,24 @@ export class Game {
       }
       this.ctx.stroke();
       this.ctx.closePath();
+
+      const now = Date.now();
+      if (now - this.lastSentTime > this.THROTTLE_MS) {
+        this.socket.send(
+          JSON.stringify({
+            type: "chat",
+            message: JSON.stringify({
+              shape: {
+                type: this.selectedTool,
+                points: this.currentPath,
+                color: this.currentColor
+              },
+            }),
+            roomId: this.roomId,
+          })
+        );
+        this.lastSentTime = now;
+      }
       return;
     }
 
@@ -309,6 +342,34 @@ export class Game {
       );
       this.ctx.stroke();
       this.ctx.closePath();
+    }
+    const now = Date.now();
+    if (now - this.lastSentTime > this.THROTTLE_MS) {
+      let previewShape: any = null;
+
+      if (selectedTool === "rect") {
+        previewShape = { type: "rect", x: this.startX, y: this.startY, width, height, color: this.currentColor };
+      } else if (selectedTool === "circle") {
+        const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+        previewShape = { 
+            type: "circle", 
+            radius, 
+            centerX: this.startX + (width >= 0 ? radius : -radius), 
+            centerY: this.startY + (height >= 0 ? radius : -radius), 
+            color: this.currentColor 
+        };
+      } else if (selectedTool === "arrow") {
+        previewShape = { type: "arrow", startX: this.startX, startY: this.startY, endX: e.offsetX, endY: e.offsetY, color: this.currentColor };
+      }
+
+      if (previewShape) {
+        this.socket.send(JSON.stringify({
+          type: "chat",
+          message: JSON.stringify({ shape: previewShape, isPreview: true, isUpdate: true}), 
+          roomId: this.roomId,
+        }));
+      }
+      this.lastSentTime = now;
     }
   }
 
