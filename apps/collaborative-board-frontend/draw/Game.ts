@@ -13,6 +13,7 @@ export class Game {
   private clicked: boolean;
   private selectedTool: Tool = "circle";
   private typing: boolean = false;
+  private currentColor: string = "#ffffff"
 
   private currentPath : {x: number, y: number}[] = [];
 
@@ -22,6 +23,7 @@ export class Game {
     this.roomId = roomId;
     this.socket = socket;
     this.clicked = false;
+    this.clearCanvas();
     this.init();
     this.initHandler();
     this.initMouseHandlers();
@@ -36,6 +38,9 @@ export class Game {
   setTool(tool: Tool) {
     this.selectedTool = tool;
   }
+  setColor(color : string){
+    this.currentColor = color
+  }
 
   private async init() {
     try{
@@ -48,6 +53,7 @@ export class Game {
           this.existingShapes.push(shape)
         }
       });
+      this.clearCanvas();
     }catch(error){
       console.error("Failed to fetch existing shapes", error);
     }
@@ -84,13 +90,15 @@ export class Game {
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.existingShapes.forEach((shape) => {
-      this.ctx.strokeStyle = "white";
       this.ctx.lineCap = "round";
       this.ctx.lineJoin = "round";
+      this.ctx.lineWidth = 2;
+      const shapeColor = shape.color || "white";
       if (shape.type === "rect") {
-        this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+        this.ctx.strokeStyle = shapeColor;
         this.ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
       } else if (shape.type === "circle") {
+        this.ctx.strokeStyle = shapeColor;
         this.ctx.beginPath();
         this.ctx.arc(
           shape.centerX,
@@ -102,7 +110,7 @@ export class Game {
         this.ctx.stroke();
         this.ctx.closePath();
       }else if(shape.type === "pencil" || shape.type === "eraser"){
-        this.ctx.strokeStyle = shape.type === "eraser" ? "black" : "white";
+        this.ctx.strokeStyle = shape.type === "eraser" ? "black" : shapeColor;
         this.ctx.lineWidth = shape.type === "eraser" ? 20 : 2;
         this.ctx.lineCap = "round";
         this.ctx.lineJoin = "round";
@@ -115,10 +123,9 @@ export class Game {
           this.ctx.stroke();
           this.ctx.closePath();
         }
-        this.ctx.lineWidth = 1;
       }else if(shape.type === "text"){
         this.ctx.font = "24px Arial";
-        this.ctx.fillStyle = "white";
+        this.ctx.fillStyle = shapeColor;
         this.ctx.fillText(shape.text, shape.x, shape.y);
       }else if(shape.type === "arrow"){
         const headlen = 15;
@@ -127,8 +134,7 @@ export class Game {
         const angle = Math.atan2(dy, dx);
 
         this.ctx.beginPath(); 
-        this.ctx.strokeStyle = "white";
-        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = shapeColor;
         this.ctx.lineCap = "round";
         this.ctx.lineJoin = "round";
 
@@ -197,6 +203,7 @@ export class Game {
         y: this.startY,
         width,
         height,
+        color: this.currentColor
       };
     } else if (selectedTool === "circle") {
       const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
@@ -204,11 +211,12 @@ export class Game {
         type: "circle",
         radius: radius,
         centerX: this.startX + (width >= 0 ? radius : -radius),
-        centerY: this.startY + (width >= 0 ? radius : -radius),
+        centerY: this.startY + (height >= 0 ? radius : -radius),
+        color: this.currentColor
       };
     }else if (selectedTool === "pencil" || selectedTool === "eraser"){
       if(this.currentPath.length > 1){
-        shape = { type: selectedTool, points: [...this.currentPath] };
+        shape = { type: selectedTool, points: [...this.currentPath], color: this.currentColor };
       }
       this.currentPath = [];
     }else if(selectedTool === "arrow"){
@@ -217,7 +225,8 @@ export class Game {
         startX: this.startX,
         startY: this.startY,
         endX: e.offsetX,
-        endY: e.offsetY
+        endY: e.offsetY,
+        color: this.currentColor
       }
     }
 
@@ -243,9 +252,9 @@ export class Game {
     
     if(this.selectedTool === "pencil" || this.selectedTool === "eraser"){
       this.currentPath.push({x: e.offsetX, y: e.offsetY});
-
       this.clearCanvas();
-      this.ctx.strokeStyle = this.selectedTool === "eraser" ? "black" : "white";
+
+      this.ctx.strokeStyle = this.selectedTool === "eraser" ? "black" : this.currentColor;
       this.ctx.lineWidth = this.selectedTool === "eraser" ? 20 : 2;
 
       this.ctx.lineCap = "round";
@@ -259,9 +268,6 @@ export class Game {
       }
       this.ctx.stroke();
       this.ctx.closePath();
-
-      this.ctx.lineWidth = 1;
-
       return;
     }
 
@@ -269,7 +275,8 @@ export class Game {
     const height = e.offsetY - this.startY;
 
     this.clearCanvas();
-    this.ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+    this.ctx.strokeStyle = this.currentColor;
+    this.ctx.lineWidth = 2;
     const selectedTool = this.selectedTool;
 
     if(this.selectedTool === "rect"){
@@ -277,7 +284,7 @@ export class Game {
     }else if(selectedTool === "circle"){
       const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
       const centerX = this.startX + (width >= 0 ? radius : -radius);
-      const centerY = this.startY + (width >= 0 ? radius : -radius);
+      const centerY = this.startY + (height >= 0 ? radius : -radius);
       this.ctx.beginPath();
       this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       this.ctx.stroke();
@@ -302,8 +309,6 @@ export class Game {
       );
       this.ctx.stroke();
       this.ctx.closePath();
-
-      this.ctx.lineWidth = 1;
     }
   }
 
@@ -315,7 +320,7 @@ export class Game {
     input.style.left = `${clientX}px`;
     input.style.top = `${clientY}px`;
     input.style.background = "transparent";
-    input.style.color = "white";
+    input.style.color = this.currentColor;
     input.style.font = "24px Arial";
     input.style.border = "1px dashed rgba(255, 255, 255, 0.5)";
     input.style.outline = "none";
@@ -337,6 +342,7 @@ export class Game {
           x: offsetX,
           y: offsetY + 24,
           text: text,
+          color: this.currentColor
         };
         
         this.existingShapes.push(shape);

@@ -9,11 +9,16 @@ export type Tool = "circle" | "rect" | "pencil" | "eraser" | "text" | "arrow";
 export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : WebSocket; roomSlug : string}){
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [selectedTool, setSelectedTool] = useState<Tool>("circle");
+    const [selectedColor, setSelectedColor] = useState<string>("#ffffff");
     const [game, setGame] = useState<Game>();
     const router = useRouter();
     useEffect(() => {
         game?.setTool(selectedTool);
     }, [selectedTool, game])
+
+    useEffect(() => {
+        game?.setColor(selectedColor)
+    }, [selectedColor, game]);
 
     useEffect(() => {
         if(canvasRef.current){
@@ -34,6 +39,8 @@ export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : Web
         <canvas style={{display : "block"}} ref ={canvasRef} width={5000} height={5000}></canvas>
         <Topbar selectedTool={selectedTool} 
         setSelectedTool={setSelectedTool} 
+        selectedColor = {selectedColor}
+        setSelectedColor = {setSelectedColor}
         game={game} 
         onExit={() => router.push("/dashboard")}/>
 
@@ -54,12 +61,15 @@ export function Canvas({roomId, socket, roomSlug}: {roomId: number; socket : Web
         </div>
 }
 
-function Topbar({selectedTool, setSelectedTool, game, onExit}: {
+function Topbar({selectedTool, selectedColor, setSelectedColor, setSelectedTool, game, onExit}: {
     selectedTool: Tool,
     setSelectedTool: (s: Tool) => void,
+    setSelectedColor: (c: string) => void,
+    selectedColor: string,
     game?: Game,
-    onExit: () => void; 
+    onExit: () => void;
 }){
+    const strokeColors = ["#ffffff", "#ef4444", "#22c55e", "#3b82f6", "#eab308"];
     return <div style={{
             position: "fixed",
             top: 10,
@@ -94,6 +104,22 @@ function Topbar({selectedTool, setSelectedTool, game, onExit}: {
            <IconButton onClick={() => {
             setSelectedTool("arrow")
            }} activated = {selectedTool === "arrow"} icon = {<ArrowRight/>}/>
+
+           <div className="flex gap-1 px-1">
+             {strokeColors.map((color) => (
+               <button
+                 key={color}
+                 onClick={() => setSelectedColor(color)}
+                 className={`w-6 h-6 rounded-md transition-all ${
+                   selectedColor === color 
+                     ? "ring-2 ring-zinc-300 scale-110" 
+                     : "border border-zinc-700 hover:scale-110"
+                 }`}
+                 style={{ backgroundColor: color }}
+                 title={`Select color: ${color}`}
+               />
+             ))}
+           </div>
 
            <div className="w-px h-8 bg-zinc-700 mx-1"></div>
 
