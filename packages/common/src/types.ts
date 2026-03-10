@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export const CreateUserSchema = z.object({
-    username: z.string().min(3,{message: "username can not be empty"}).max(20),
+    username: z.string().email({ message: "Please enter a valid email address" }),
     password: z.string().min(8, {message: "password should be greater than 8 chars"}).max(50),
     name:     z.string()
 })
 
 export const SignInSchema = z.object({
-    username: z.string().min(3, {message: "username can not be empty"}).max(20),
+    username: z.string().email({ message: "Please enter a valid email address" }),
     password: z.string().min(8, {message: "password should be greater than 8 chars"}).max(50)
 })
 

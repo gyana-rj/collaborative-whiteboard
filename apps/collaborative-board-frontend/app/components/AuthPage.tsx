@@ -5,6 +5,7 @@ import Script from "next/script";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CreateUserSchema, SignInSchema } from "@repo/common"; 
 
 export function AuthPage({ isSignin }: { isSignin: boolean }) {
     const router = useRouter();
@@ -12,18 +13,33 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<{name?: string, email?: string, password?: string}>({});
 
     const handleSubmit = async () => {
-        if (!email || !password || (!isSignin && !name)) {
+        setErrors({});
+
+        const schema = isSignin ? SignInSchema : CreateUserSchema;
+
+        const validation = schema.safeParse({
+            username: email,
+            password,
+            ...(isSignin ? {} : {name})
+        });
+
+        if(!validation.success){
+            const formattedErrors: any = {};
+            validation.error.issues.forEach((issue) => {
+                const field = issue.path[0] === 'username' ? 'email' : issue.path[0];
+                formattedErrors[field] = issue.message;
+            })
+            setErrors(formattedErrors);
             return;
         }
 
         setLoading(true);
-        
         const endpoint = isSignin ? "signin" : "signup";
-        const payload = isSignin
-            ? { username: email, password }
-            : { username: email, password, name };
+
+        const payload = validation.data;
 
         try {
             const response = await axios.post(`http://localhost:3001/${endpoint}`, payload);
@@ -94,6 +110,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                                 onChange={(e) => {setEmail(e.target.value)}}
                                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
                             />
+                            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -105,6 +122,7 @@ export function AuthPage({ isSignin }: { isSignin: boolean }) {
                                 onChange={(e) => {setPassword(e.target.value)}}
                                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
                             />
+                            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
                         </div>
 
                         <button 

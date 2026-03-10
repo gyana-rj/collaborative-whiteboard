@@ -30,9 +30,9 @@ export class Game {
   }
 
   destroy(){
-    this.canvas.removeEventListener("mousedown", this.mouseDownHandler);
-    this.canvas.removeEventListener("mouseup", this.mouseUpHandler);
-    this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
+    this.canvas.removeEventListener("pointerdown", this.mouseDownHandler);
+    this.canvas.removeEventListener("pointerup", this.mouseUpHandler);
+    this.canvas.removeEventListener("pointermove", this.mouseMoveHandler);
   }
 
   setTool(tool: Tool) {
@@ -110,8 +110,8 @@ export class Game {
         this.ctx.stroke();
         this.ctx.closePath();
       }else if(shape.type === "pencil" || shape.type === "eraser"){
-        this.ctx.strokeStyle = shape.type === "eraser" ? "black" : shapeColor;
-        this.ctx.lineWidth = shape.type === "eraser" ? 20 : 2;
+        this.ctx.strokeStyle = shape.type === "eraser" ? "#121212" : shapeColor;
+        this.ctx.lineWidth = shape.type === "eraser" ? 30 : 2;
         this.ctx.lineCap = "round";
         this.ctx.lineJoin = "round";
         if (shape.points.length > 0) {
@@ -173,7 +173,7 @@ export class Game {
     )
   }
 
-  mouseDownHandler = (e: MouseEvent) => {
+  mouseDownHandler = (e: PointerEvent) => {
     if(this.typing) return;
 
     if(this.selectedTool === "text"){
@@ -189,7 +189,7 @@ export class Game {
     }
   }
 
-  mouseUpHandler = (e: MouseEvent) => {
+  mouseUpHandler = (e: PointerEvent) => {
     this.clicked = false;
     const width = e.offsetX - this.startX;
     const height = e.offsetY - this.startY;
@@ -247,15 +247,15 @@ export class Game {
     );
   }
 
-  mouseMoveHandler = (e: MouseEvent) => {
+  mouseMoveHandler = (e: PointerEvent) => {
     if(!this.clicked) return;
     
     if(this.selectedTool === "pencil" || this.selectedTool === "eraser"){
       this.currentPath.push({x: e.offsetX, y: e.offsetY});
       this.clearCanvas();
 
-      this.ctx.strokeStyle = this.selectedTool === "eraser" ? "black" : this.currentColor;
-      this.ctx.lineWidth = this.selectedTool === "eraser" ? 20 : 2;
+      this.ctx.strokeStyle = this.selectedTool === "eraser" ? "#121212" : this.currentColor;
+      this.ctx.lineWidth = this.selectedTool === "eraser" ? 30 : 2;
 
       this.ctx.lineCap = "round";
       this.ctx.lineJoin = "round";
@@ -362,8 +362,10 @@ export class Game {
   }
 
   initMouseHandlers() {
-    this.canvas.addEventListener("mousedown", this.mouseDownHandler);
-    this.canvas.addEventListener("mouseup", this.mouseUpHandler);
-    this.canvas.addEventListener("mousemove", this.mouseMoveHandler);
+    this.canvas.addEventListener("pointerdown", this.mouseDownHandler);
+    this.canvas.addEventListener("pointerup", this.mouseUpHandler);
+    this.canvas.addEventListener("pointermove", this.mouseMoveHandler);
+
+    this.canvas.style.touchAction = "none";
   }
 }

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "exports": {
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    ".": "./src/index.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,7 +16,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "zod": "^4.3.6"
   }
