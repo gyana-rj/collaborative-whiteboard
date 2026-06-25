@@ -107,7 +107,7 @@ wss.on("connection", function connection(ws, request) {
       message,
       userId,
     },
-  }).catch((error) => {
+  }).catch((error: any) => {
     console.error("Delayed DB Save Error:", error);
   });
 }
