@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  http-backend:
+    build:
+      context: .
+      dockerfile: docker/http-backend.Dockerfile
+    ports:
+      - '30001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    networks:
+      - whiteboard-network
+    
+  ws-backend:
+    build:
+      context: .
+      dockerfile: docker/ws-backend.Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+    networks:
+      - whiteboard-network
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_HTTP_URL=http://localhost:3000
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080
+    depends_on:
+      - http-backend
+      - ws-backend
+    networks:
+      - whiteboard-network
+
+networks:
+  whiteboard-network:
+    driver: bridge
+
+    

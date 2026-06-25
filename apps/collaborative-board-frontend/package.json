@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
-    "@repo/ui": "workspace:*",
     "@repo/common": "workspace:*",
+    "@repo/ui": "workspace:*",
     "axios": "^1.13.5",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.575.0",
@@ -20,8 +20,8 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@repo/common": "workspace:*",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
